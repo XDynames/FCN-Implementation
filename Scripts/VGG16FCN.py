@@ -21,13 +21,13 @@ class VGG16FCN(torch.nn.Module):
         # Demensionality Reduction to produce a tensor for each class
         self.downSample3 = torch.nn.Sequential(
                 *list(VGG16.features.children())[24:31],
-                torch.nn.Conv2d(256, numberOfClasses, kernel_size = (1,1)), 
+                torch.nn.Conv2d(512, numberOfClasses, kernel_size = (1,1)), 
                 torch.nn.ReLU(True),
                 torch.nn.Dropout(p=0.5),
-                torch.nn.Conv2d(256, numberOfClasses, kernel_size = (1,1)),
+                torch.nn.Conv2d(numberOfClasses, numberOfClasses, kernel_size = (1,1)),
                 torch.nn.ReLU(True),
                 torch.nn.Dropout(p=0.5),
-                torch.nn.Conv2d(256, numberOfClasses, kernel_size = (1,1))
+                torch.nn.Conv2d(numberOfClasses, numberOfClasses, kernel_size = (1,1))
         ) # Dim / 32
         
         # Upsampling Pathway - Bilinear interpolation

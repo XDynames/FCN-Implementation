@@ -3,10 +3,11 @@
 
 # Load pytroch
 import torch
+import cpuinfo
 
 # Detects and assigns a device for pytorch, preferncing GPUs
 # Prints relevent system information
-def assign():
+def getDevice():
     # Check Available Devices
     if torch.cuda.is_available():
         device = torch.device("cuda:0")
@@ -16,4 +17,4 @@ def assign():
     else:
         device = torch.device("cpu")
         print("Using " + str(cpuinfo.get_cpu_info()['brand']))
-    return
+    return device
