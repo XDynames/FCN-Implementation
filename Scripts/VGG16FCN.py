@@ -96,9 +96,19 @@ class FCN16(VGG16FCN):
         output1 = self.downSample1(inputTensor)
         output1 = self.downSample2(output1)
         output2 = self.downSample3(output1)
+        output2 = self.classification(output2)
+        
         # Upsampling Pathway
-        output = self.upSample2(output2) + output1
-        return self.upSample16(output)
+        # Skip for inclusion of pool4
+        output1 = self.upSample2(output1) 
+        # Reduce the tesnors channels to the number of classes
+        output1 = self.dimReduce1(output1)
+        # Fix rounding of tensor size durring downsampling
+        output1 = self.padUpToSize(output1, output2)
+        # Sum the tensors
+        output16 = torch.add(output1, output2)
+        # Upsample to original size
+        return self.upSample16(output16)
     
 class FCN32(VGG16FCN):                                     
     # Forward path through the network
@@ -107,6 +117,8 @@ class FCN32(VGG16FCN):
         output1 = self.downSample1(inputTensor)
         output1 = self.downSample2(output1)
         output1 = self.downSample3(output1)
+        output1 = self.classification(output1)
+        
         # Upsampling Pathway
         return self.upSample32(output1)
     
