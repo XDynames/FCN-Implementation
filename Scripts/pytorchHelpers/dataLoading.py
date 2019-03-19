@@ -15,7 +15,8 @@ from torchvision import transforms
 # Returns a list of pytorch dataloader objects with different properties for each phase of training
 def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
                      pathGT, pathTest, numberOfWorkers = 0, transformerTrain =
-                     transforms.ToTensor(), transformerTest = transforms.ToTensor()):
+                     transforms.ToTensor(), transformerGT = transforms.ToTensor(), 
+                     transformerTest = transforms.ToTensor()):
     
     # Get current working directory
     path =  os.getcwd() + pathToData
@@ -33,7 +34,7 @@ def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
     # Create pytorch samplers using the generated indexs
     trainingSampler = torch.utils.data.SequentialSampler(trainIndices)
     valiSampler = torch.utils.data.SequentialSampler(valiIndices)
-    # Using sequential sampler to hopefully get raw and groundtruth image pairs
+    # Using sequential sampler to get raw and groundtruth image pairs
     # from two different loaders
 
 
@@ -43,7 +44,7 @@ def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
                             num_workers = numberOfWorkers),
 
                     'trainGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                              transform = transformerTest), batch_size = batchSize,
+                              transform = transformerGT), batch_size = batchSize,
                               num_workers = numberOfWorkers),
                     
                     'trainVali': DataLoader(ImageFolder(root = pathRaw,
@@ -51,7 +52,7 @@ def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
                             num_workers = numberOfWorkers),
 
                     'trainValiGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                              transform = transformerTest), batch_size = batchSize,
+                              transform = transformerGT), batch_size = batchSize,
                               num_workers = numberOfWorkers),
 
                     'vali': DataLoader(ImageFolder(root = pathRaw, 
@@ -59,7 +60,7 @@ def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
                             sampler = valiSampler, num_workers = numberOfWorkers),
 
                     'valiGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                            transform = transformerTest), batch_size = batchSize,
+                            transform = transformerGT), batch_size = batchSize,
                             sampler = valiSampler, num_workers = numberOfWorkers),
 
                     'test': DataLoader(ImageFolder(root = pathTesting, 
