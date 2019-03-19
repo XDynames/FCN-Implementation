@@ -14,9 +14,8 @@ from torchvision import transforms
 
 # Returns a list of pytorch dataloader objects with different properties for each phase of training
 def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
-                     pathGT, pathTest, numberOfWorkers = 0, transformerTrain =
-                     transforms.ToTensor(), transformerGT = transforms.ToTensor(), 
-                     transformerTest = transforms.ToTensor()):
+                     pathGT, pathTest, transformerTrain,
+                     transformerGT, transformerTest, numberOfWorkers = 0):
     
     # Get current working directory
     path =  os.getcwd() + pathToData
