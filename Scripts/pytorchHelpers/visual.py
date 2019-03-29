@@ -6,11 +6,17 @@ from torchvision import utils
 
 # Converts a pytorch tensor stack to a RGB colour image numpy array
 def tensorToNumpy(imageTensor):
-    grid = utils.make_grid(imageTensor)
-    grid = grid.numpy().transpose((1, 2, 0))
-    # clip any values less than 0 or greater than 1 to
-    # avoid the wrath of matplotlib
-    grid = np.clip(grid, 0, 1)
+    if len(imageTensor.size()) == 4:
+        grid = utils.make_grid(imageTensor)
+        grid = grid.numpy()
+        # Rearrange Channels
+        grid = grid.transpose((1, 2, 0))
+    else:
+        grid = imageTensor.numpy()
+        flattened = grid[0,:,:]
+        for image in grid[1:]:
+            flattened = np.hstack((flattened, image))
+        grid = flattened
     return grid
 
 # Displays an image from an inputted tensor

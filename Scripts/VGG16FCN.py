@@ -20,7 +20,7 @@ class VGG16FCN(nn.Module):
         # Downsampling Pathway
         self.downSample1 = nn.Sequential(*list(VGG16.features.children())[0:17])
         # Adjust first convulution layer to pad input by 100
-        self.downSample1[0].padding = (100, 100)
+        #self.downSample1[0].padding = (100, 100)
         self.downSample2 = nn.Sequential(*list(VGG16.features.children())[17:24])
         # Demensionality Reduction to produce a tensor for each class
         self.downSample3 = nn.Sequential(*list(VGG16.features.children())[24:31])
