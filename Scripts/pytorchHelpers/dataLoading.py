@@ -23,47 +23,46 @@ def buildDataloaders(batchSize, validationSetPercentage, pathToData, pathTrain,
     pathRaw = path + pathTrain
     pathGroundTruth = path + pathGT
     pathTesting = path + pathTest
+    
+    imageSets = {'train': ImageFolder(root = pathRaw, transform = transformerTrain),
+                 'trainGT': ImageFolder(root = pathGroundTruth, transform = transformerGT),
+                 'trainVali': ImageFolder(root = pathRaw, transform = transformerTrain),
+                 'trainValiGT':ImageFolder(root = pathGroundTruth, transform = transformerGT),
+                 'vali': ImageFolder(root = pathRaw, transform = transformerTrain),
+                 'valiGT': ImageFolder(root = pathGroundTruth, transform = transformerGT),
+                 'test':  ImageFolder(root = pathTesting, transform = transformerTest) }
 
     # Split images into training and validation randomly
-    indicies = list(range(len(os.listdir(pathRaw))))
-    splitSize = math.ceil(len(os.listdir(pathRaw))*validationSetPercentage) 
+    indicies = list(range(len(imageSets['train'])))
+    splitSize = math.ceil(len(indicies)*validationSetPercentage) 
     valiIndices = np.random.choice(indicies, size = splitSize, replace = False)
     trainIndices = list(set(indicies) - set(valiIndices))
-
     # Create pytorch samplers using the generated indexs
     trainingSampler = torch.utils.data.SequentialSampler(trainIndices)
     valiSampler = torch.utils.data.SequentialSampler(valiIndices)
     # Using sequential sampler to get raw and groundtruth image pairs
     # from two different loaders
 
-
     # Define a list to store image loader objects with settings for different phases
-    imageLoaders = {'train': DataLoader(ImageFolder(root = pathRaw,
-                            transform = transformerTrain), batch_size = batchSize,
-                            num_workers = numberOfWorkers),
+    imageLoaders = {'train': DataLoader(imageSets['train'], batch_size = batchSize,
+                            sampler = trainingSampler, num_workers = numberOfWorkers),
 
-                    'trainGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                              transform = transformerGT), batch_size = batchSize,
-                              num_workers = numberOfWorkers),
+                    'trainGT': DataLoader(imageSets['trainGT'], batch_size = batchSize,
+                              sampler = trainingSampler, num_workers = numberOfWorkers),
                     
-                    'trainVali': DataLoader(ImageFolder(root = pathRaw,
-                            transform = transformerTrain), batch_size = batchSize,
-                            num_workers = numberOfWorkers),
+                    'trainVali': DataLoader(imageSets['trainVali'], batch_size = batchSize,
+                            sampler = trainingSampler, num_workers = numberOfWorkers),
 
-                    'trainValiGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                              transform = transformerGT), batch_size = batchSize,
-                              num_workers = numberOfWorkers),
+                    'trainValiGT': DataLoader(imageSets['trainValiGT'], batch_size = batchSize,
+                              sampler = trainingSampler, num_workers = numberOfWorkers),
 
-                    'vali': DataLoader(ImageFolder(root = pathRaw, 
-                            transform = transformerTrain), batch_size = batchSize,
+                    'vali': DataLoader(imageSets['vali'], batch_size = batchSize,
                             sampler = valiSampler, num_workers = numberOfWorkers),
 
-                    'valiGT': DataLoader(ImageFolder(root = pathGroundTruth,
-                            transform = transformerGT), batch_size = batchSize,
+                    'valiGT': DataLoader(imageSets['valiGT'], batch_size = batchSize,
                             sampler = valiSampler, num_workers = numberOfWorkers),
 
-                    'test': DataLoader(ImageFolder(root = pathTesting, 
-                            transform = transformerTest), batch_size = batchSize,
+                    'test': DataLoader(imageSets['test'], batch_size = batchSize,
                             num_workers = numberOfWorkers)
                    }
     
