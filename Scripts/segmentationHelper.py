@@ -34,6 +34,16 @@ class Segmentor:
     
     
     # From an numpy array of labels creates an RGB numpy array image
+    # using the original colours from the ground truth
     def mapLabelsToColours(self, labelArray):
         # Constrcuts a colour image using the labels in the array
         return np.array(self._colours)[labelArray]
+    
+    
+    # mapLabelsToColours that can be used on pytorch tensors
+    # directly
+    def mapLabelsToColoursPytensor(self, tensor):
+        # Extract label array as a numpy array and
+        # move it to the CPU
+        labelArray = tensor.cpu().numpy()
+        return self.mapLabelsToColours(labelArray)
