@@ -3,6 +3,7 @@
 # Built for translation of ground truth images into label arrays and vice verse in pytorch
 
 import numpy as np
+import torch
 
 class Segmentor:
     
@@ -47,3 +48,47 @@ class Segmentor:
         # move it to the CPU
         labelArray = tensor.cpu().numpy()
         return self.mapLabelsToColours(labelArray)
+    
+    # Counts the number of correctly labeled pixels in a prediction
+    def countCorrectPixelLabels(self, batchOfPredictions, batchOfGT):        
+        # Return how many times pixels where correctly labeled as a numpy array
+        return torch.sum(batchOfPredictions == batchOfGT.data).cpu().numpy()
+    
+    def pixelwiseAccuracy(self, batchOfOutput, batchOfGT):
+        # extract predictions by taking the maximum across the class channels
+        # and return tensors specifying the channel the max is in
+        batchOfPredictions = torch.argmax(batchOfOutput, dim = 1)
+        # Calculate the number of correctly labeled pixels
+        correctPixels = self.countCorrectPixelLabels(batchOfPredictions, batchOfGT)
+        # Divide by the number of predictions made
+        return correctPixels / np.prod(batchOfPredictions.shape)
+    
+    # Calculates the Intersection over Union of a prediction with GT
+    def iou(self, prediction, GT):
+        # Initialise a list to store each classes IoU
+        IoUs = []
+        # Don't consider background label
+        for classLabel in self._labels[1:]:
+            # Create masks with 1s where the label is found
+            predictionPositions = prediction == classLabel
+            GTPositions = GT == classLabel
+            # Calculate the intersection and the union
+            intersection = np.logical_and(predictionPositions, GTPositions)
+            union = np.logical_or(predictionPositions, GTPositions)
+            # Append the result
+            IoUs.append(np.sum(intersection)/np.sum(union))
+        # Return the average IoU across all classes
+        return np.mean(np.array(IoUs))
+    
+    # Calculates the average intersection over union for a batch
+    def intersectionOverUnion(self, batchOfOutput, batchOfGT):
+        # extract predictions by taking the maximum across the class channels
+        # and return tensors specifying the channel the max is in
+        batchOfPredictions = torch.argmax(batchOfOutput, dim = 1)
+        # Initialise a list to store each images IoU
+        IoUs = []
+        # Calculate the IoU for each prediction
+        for prediction, GT in zip(batchOfPredictions, batchOfGT):
+            IoUs.append(self.iou(prediction.cpu().numpy(), GT.cpu().numpy()))
+        # Return the averaged IoU for the batch
+        return np.mean(np.array(IoUs))
